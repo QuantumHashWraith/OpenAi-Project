@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assistant Chat Widget</title>
+    <!-- Link to the updated CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Google Fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+</head>
+<body>
+    <!-- Chat Widget Button -->
+    <div id="chat-widget-button">
+        <img src="{{ url_for('static', filename='chat_icon.png') }}" alt="Chat" />
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chat-container">
+        <div class="header">
+            <h1>Assistant Chat</h1>
+            <button id="close-chat">×</button>
+        </div>
+        <div id="chat-box" class="chat-box">
+            <div id="messages"></div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type your message here..." onkeydown="if(event.key === 'Enter'){sendMessage();}">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const messagesDiv = document.getElementById("messages");
+        const chatContainer = document.getElementById("chat-container");
+        const chatWidgetButton = document.getElementById("chat-widget-button");
+        const closeChatButton = document.getElementById("close-chat");
+
+        // Initially hide the chat container
+        chatContainer.style.display = "none";
+
+        // Show chat when widget button is clicked
+        chatWidgetButton.addEventListener("click", () => {
+            chatContainer.style.display = "flex";
+            chatWidgetButton.style.display = "none";
+        });
+
+        // Hide chat when close button is clicked
+        closeChatButton.addEventListener("click", () => {
+            chatContainer.style.display = "none";
+            chatWidgetButton.style.display = "block";
+        });
+
+        // Function to send user message to the backend
+        async function sendMessage() {
+            const userMessage = document.getElementById("user-input").value;
+            if (userMessage.trim() === "") return;
+
+            addMessageToChat("user", userMessage);
+            document.getElementById("user-input").value = "";
+
+            const typingIndicator = addTypingIndicator();
+            const assistantMessageElement = addMessageToChat("assistant", "");
+
+            try {
+                const response = await fetch('/send_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                });
+                const data = await response.json();
+
+                removeTypingIndicator(typingIndicator);
+                const text = data.response;
+                typeCharacter(text, 0, assistantMessageElement);
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator(typingIndicator);
+                assistantMessageElement.querySelector('.message-content').textContent = "An error occurred. Please try again.";
+            }
+        }
+
+        // Function to type characters smoothly
+        function typeCharacter(text, index, assistantMessageElement) {
+            if (index < text.length) {
+                assistantMessageElement.querySelector('.message-content').textContent += text.charAt(index);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                index++;
+                setTimeout(function() {
+                    requestAnimationFrame(function() {
+                        typeCharacter(text, index, assistantMessageElement);
+                    });
+                }, 15);
+            }
+        }
+
+        // Function to add message to the chat box
+        function addMessageToChat(sender, message) {
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message", sender);
+
+            // Create avatar element
+            const avatar = document.createElement("div");
+            avatar.classList.add("avatar");
+
+            const messageContent = document.createElement("div");
+            messageContent.classList.add("message-content");
+            messageContent.textContent = message;
+
+            if (sender === "user") {
+                messageElement.appendChild(messageContent);
+                messageElement.appendChild(avatar);
+            } else {
+                messageElement.appendChild(avatar);
+                messageElement.appendChild(messageContent);
+            }
+
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return messageElement;
+        }
+
+        // Function to add typing indicator
+        function addTypingIndicator() {
+            const typingElement = document.createElement("div");
+            typingElement.classList.add("message", "assistant", "typing");
+
+            const avatar = document.createElement("div");
+            avatar.classList.add("avatar");
+
+            const messageContent = document.createElement("div");
+            messageContent.classList.add("message-content");
+
+            messageContent.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+
+            typingElement.appendChild(avatar);
+            typingElement.appendChild(messageContent);
+            messagesDiv.appendChild(typingElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return typingElement;
+        }
+
+        // Function to remove typing indicator
+        function removeTypingIndicator(typingElement) {
+            typingElement.remove();
+        }
+    </script>
+</body>
+</html>

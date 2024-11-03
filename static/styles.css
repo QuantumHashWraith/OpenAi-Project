@@ -1,0 +1,230 @@
+/* Reset and box-sizing */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Body styling */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: transparent;
+}
+
+/* Chat Widget Button */
+#chat-widget-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    background-color: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#chat-widget-button img {
+    width: 35px;
+    height: 35px;
+    filter: invert(1); /* Invert icon color if needed */
+}
+
+/* Chat container */
+.chat-container {
+    position: fixed;
+    bottom: 100px; /* Adjusted to position above the widget button */
+    right: 20px;
+    width: 400px;   /* Increased width */
+    height: 600px;  /* Fixed height */
+    background-color: #ffffff;
+    border-radius: 8px;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Close button in header */
+#close-chat {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #ffffff;
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+}
+
+#close-chat:hover {
+    color: #ccc;
+}
+
+/* Header styling */
+.header {
+    background-color: #007bff;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+}
+
+.header h1 {
+    color: #ffffff;
+    margin: 0;
+    font-weight: 500;
+    font-size: 20px;
+}
+
+/* Chat box */
+.chat-box {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+}
+
+/* Input area */
+.input-area {
+    display: flex;
+    padding: 10px;
+    background-color: #f1f1f1;
+    align-items: center;
+}
+
+#user-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 5px;
+    outline: none;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Message styling */
+.message {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: flex-end;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 12px 18px;
+    border-radius: 20px;
+    font-size: 15px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    position: relative;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+}
+
+.message.user .message-content {
+    background: linear-gradient(135deg, #72edf2 0%, #5151e5 100%);
+    color: #ffffff;
+    border-bottom-right-radius: 5px;
+    box-shadow: 0 2px 4px rgba(81, 81, 229, 0.3);
+}
+
+.message.assistant .message-content {
+    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    color: #ffffff;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 4px rgba(253, 160, 133, 0.3);
+}
+
+/* Avatars */
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-size: cover;
+    background-position: center;
+}
+
+/* User Avatar */
+.message.user .avatar {
+    background-image: url('{{ url_for('static', filename='user_avatar.png') }}');
+}
+
+/* Assistant Avatar */
+.message.assistant .avatar {
+    background-image: url('{{ url_for('static', filename='assistant_avatar.png') }}');
+}
+
+/* Animations */
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+/* Typing indicator styles */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 20px;
+}
+
+.typing-indicator span {
+    background-color: #ffffff;
+    opacity: 0.5;
+    border-radius: 50%;
+    display: inline-block;
+    height: 8px;
+    width: 8px;
+    margin-right: 3px;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation-delay: 0s;
+}
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0% {
+        opacity: 0.2;
+        transform: translateY(0);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+    40% {
+        opacity: 0.2;
+        transform: translateY(0);
+    }
+}
